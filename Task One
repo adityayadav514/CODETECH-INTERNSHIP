@@ -1,0 +1,38 @@
+import pandas as pd
+import numpy as np
+
+# Load the data
+data = pd.read_csv('data.csv')
+
+# Handle missing values
+data.fillna(data.mean(), inplace=True)
+
+# Remove duplicates
+data.drop_duplicates(inplace=True)
+
+# Handle outliers
+Q1 = data.quantile(0.25)
+Q3 = data.quantile(0.75)
+IQR = Q3 - Q1
+data = data[~((data < (Q1 - 1.5 * IQR)) | (data > (Q3 + 1.5 * IQR))).any(axis=1)]
+
+# Transform the data
+data['column_name'] = data['column_name'].apply(lambda x: x.strip())
+
+# Encode categorical variables
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+data['categorical_column'] = le.fit_transform(data['categorical_column'])
+
+# Scale/normalize the data
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+data[['column1', 'column2', ...]] = scaler.fit_transform(data[['column1', 'column2', ...]])
+
+# Split the data into training and testing sets
+from sklearn.model_selection import train_test_split
+X = data.drop('target_column', axis=1)
+y = data['target_column']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+print("Data preprocessing complete!")
